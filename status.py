@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # File Name :
 # Creation Date :
-# Last Modified : Sun 07 Feb 2016 09:26:17 PM MST
+# Last Modified : Mon 08 Feb 2016 12:02:44 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -118,9 +118,9 @@ def printHtml():
                 </div>
 
                 <div class="detailItem">Disk:/dev/root ''' +\
-                root_space[1] + ''' GB (''' + root_space[3]\
+                root_space[1] + '''  (''' + root_space[3]\
                 + '''%) used of ''' + root_space[0] + '''\
-                GB, ''' + root_space[2] + ''' GB free
+                , ''' + root_space[2] + '''  free
                     <div id="diskBar">
                         <div id="root_diskFill" />
                         </div>
@@ -128,9 +128,9 @@ def printHtml():
                 </div>
 
                 <div class="detailItem">Disk:/mnt/usb ''' +\
-                usb_space[1] + ''' GB (''' + usb_space[3]\
+                usb_space[1] + ''' (''' + usb_space[3]\
                 + '''%) used of ''' + usb_space[0] + '''\
-                GB, ''' + usb_space[2] + ''' GB free
+                , ''' + usb_space[2] + ''' free
                     <div id="diskBar">
                         <div id="usb_diskFill" />
                         </div>
@@ -176,11 +176,12 @@ def disk_space(drive):
     for line in lines:
         #print line
         if line.startswith(drive):
-            tokens = map(lambda x: x.replace("G", "").replace("M", ""), line.split())
-            disk_used = str(float(tokens[2]))
-            disk_free = str(float(tokens[3]))
-            disk_total = str(float(tokens[1]))
-            disk_percent = str(float(tokens[4].replace("%", "")))
+            #tokens = map(lambda x: x.replace("G", "").replace("M", ""), line.split())
+            tokens = line.split()
+            disk_used = str(tokens[2])
+            disk_free = str(tokens[3])
+            disk_total = str(tokens[1])
+            disk_percent = str(tokens[4].replace("%", ""))
             break
     return (disk_total, disk_used, disk_free, disk_percent)
 
