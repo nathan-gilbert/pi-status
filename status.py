@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # File Name :
 # Creation Date :
-# Last Modified : Sun 07 Feb 2016 09:15:50 PM MST
+# Last Modified : Sun 07 Feb 2016 09:26:17 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -118,9 +118,9 @@ def printHtml():
                 </div>
 
                 <div class="detailItem">Disk:/dev/root ''' +\
-                str(root_space[2]) + ''' GB (''' + str(root_space[3])\
-                + '''%) used of ''' + str(root_space[0]) + '''\
-                GB, ''' + str(root_space[1]) + ''' GB free
+                root_space[1] + ''' GB (''' + root_space[3]\
+                + '''%) used of ''' + root_space[0] + '''\
+                GB, ''' + root_space[2] + ''' GB free
                     <div id="diskBar">
                         <div id="root_diskFill" />
                         </div>
@@ -128,9 +128,9 @@ def printHtml():
                 </div>
 
                 <div class="detailItem">Disk:/mnt/usb ''' +\
-                str(usb_space[2]) + ''' GB (''' + str(usb_space[3])\
-                + '''%) used of ''' + str(usb_space[0]) + '''\
-                GB, ''' + str(usb_space[1]) + ''' GB free
+                usb_space[1] + ''' GB (''' + usb_space[3]\
+                + '''%) used of ''' + usb_space[0] + '''\
+                GB, ''' + usb_space[2] + ''' GB free
                     <div id="diskBar">
                         <div id="usb_diskFill" />
                         </div>
@@ -176,10 +176,10 @@ def disk_space(drive):
     for line in lines:
         #print line
         if line.startswith(drive):
-            tokens = line.split()
-            disk_used = str(int(tokens[2]))
-            disk_free = str(int(tokens[3]))
-            disk_total = str(int(tokens[1]))
+            tokens = map(lambda x: x.replace("G", "").replace("M", ""), line.split())
+            disk_used = str(float(tokens[2]))
+            disk_free = str(float(tokens[3]))
+            disk_total = str(float(tokens[1]))
             disk_percent = str(float(tokens[4].replace("%", "")))
             break
     return (disk_total, disk_used, disk_free, disk_percent)
@@ -210,7 +210,7 @@ avg_ping = read_ping()
 
 # get the storage space used
 root_space = disk_space("/dev/root")
-usb_space = disk_space("/mnt/usbstorage")
+usb_space = disk_space("/dev/sda1")
 
 lines = []
 with open("/var/log/fail2ban.log", 'r') as inFile:
