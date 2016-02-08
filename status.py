@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # File Name :
 # Creation Date :
-# Last Modified : Fri 05 Feb 2016 03:16:45 PM MST
+# Last Modified : Sun 07 Feb 2016 09:15:50 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -34,97 +34,117 @@ from subprocess import check_output
 # the right places. Notepad++ is great for syntax highlighting it.
 def printHtml():
     """prints out the html file"""
-    print '''<html>
-	<head>
-		<title>Raspberry Pi Status</title>
-		<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-		<style>
-			body {
-			background-color: #1C1C1C;
-			font-family: 'Oswald', sans-serif;
-			}
-			#container {
-			width: 100%;
-			max-width: 600px;
-			margin: 20px auto;
-			padding-top: 10px;
-			background-color: #585858;
-			}
-			#details {
-			display:block;
-			padding:10px;
-			}
-			#logo {
-			background-image: url("rpi.png");
-			background-size: auto 150px;
-			background-repeat: no-repeat;
-			height: 150px;
-			width: 125px;
-			margin: 0px auto;
-			}
-			.detailItem {
-			padding: 5px;
-			margin: 10px;
-			background-color: #A4A4A4;
-			vertical-align:middle;
-			}
-			#ramBar {
-			width:100%;
-			height: 20px;
-			background-color:#75a928;
-			}
-			#diskBar {
-			width:100%;
-			height: 20px;
-			background-color:#75a928;
-			}
-			#ramFill {
-			float:left;
-			width: ''' + ram_percent + '''%;
-			height:100%;
-			background-color:#bc1142;
-			}
-                        #diskFill {
-			float:left;
-			width: ''' + disk_percent + '''%;
-			height:100%;
-			background-color:#bc1142;
-                        }
-		</style>
-	</head>
-	<body>
-		<div id="container">
-			<div id="logo"></div>
-			<div id="details">
-                            <div class="detailItem">Hostname: ''' + hostname + '''</div>
-                            <div class="detailItem">Uptime: ''' + uptime + '''</div>
-                            <div class="detailItem">CPU Temp: ''' + temp_c\
-                            + ''' &deg;C (''' + temp_f + ''' &deg;F)</div>
-                            <div class="detailItem">RAM: ''' + ram_used +\
-                                    ''' MB used of ''' + ram_total + '''\
-                                    MB, ''' + ram_free + ''' MB free
-                                    <div id="ramBar">
-                                        <div id="ramFill" />
-                                        </div>
-                                    </div>
-                            </div>
-                            <div class="detailItem">Disk: ''' + disk_used +\
-                                    ''' MB (''' + disk_percent + '''%) used of ''' + disk_total + '''\
-                                    MB, ''' + disk_free + ''' MB free
-                                    <div id="diskBar">
-                                        <div id="diskFill" /></div>
-                                    </div>
-                            </div>
+    print '''
+<html>
+    <head>
+        <title>Raspberry Pi Status</title>
+        <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+        <style>
+                body {
+                background-color: #1C1C1C;
+                font-family: 'Oswald', sans-serif;
+                }
+                #container {
+                width: 100%;
+                max-width: 600px;
+                margin: 20px auto;
+                padding-top: 10px;
+                background-color: #585858;
+                }
+                #details {
+                display:block;
+                padding:10px;
+                }
+                #logo {
+                background-image: url("rpi.png");
+                background-size: auto 150px;
+                background-repeat: no-repeat;
+                height: 150px;
+                width: 125px;
+                margin: 0px auto;
+                }
+                .detailItem {
+                padding: 5px;
+                margin: 10px;
+                background-color: #A4A4A4;
+                vertical-align:middle;
+                }
+                #ramBar {
+                width:100%;
+                height: 20px;
+                background-color:#75a928;
+                }
+                #diskBar {
+                width:100%;
+                height: 20px;
+                background-color:#75a928;
+                }
+                #ramFill {
+                float:left;
+                width: ''' + ram_percent + '''%;
+                height:100%;
+                background-color:#bc1142;
+                }
+                #root_diskFill {
+                    float:left;
+                    width: ''' + root_space[3] + '''%;
+                    height:100%;
+                    background-color:#bc1142;
+                }
+                #usb_diskFill {
+                    float:left;
+                    width: ''' + usb_space[3] + '''%;
+                    height:100%;
+                    background-color:#bc1142;
+                }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="logo"></div>
+            <div id="details">
+                <div class="detailItem">Hostname: ''' + hostname + '''</div>
+                <div class="detailItem">Uptime: ''' + uptime + '''</div>
+                <div class="detailItem">CPU Temp: ''' + temp_c\
+                + ''' &deg;C (''' + temp_f + ''' &deg;F)</div>
+                <div class="detailItem">RAM: ''' + ram_used +\
+                ''' MB used of ''' + ram_total + ''' MB, ''' + ram_free\
+                + ''' MB free
+                    <div id="ramBar">
+                        <div id="ramFill" />
+                        </div>
+                    </div>
+                </div>
 
-                            <div class="detailItem">Google Ping: ''' + ping + ''' \
-                            ms -- Avg: ''' + avg_ping + ''' ms</div>
-                            <div class="detailItem">Banned SSH IPs today: ''' +\
-                            str(banned_ips) + '''</div>
-                            <div class="detailItem">Last Updated: ''' + updated + '''</div>
-			</div>
-		</div>
-	</body>
+                <div class="detailItem">Disk:/dev/root ''' +\
+                str(root_space[2]) + ''' GB (''' + str(root_space[3])\
+                + '''%) used of ''' + str(root_space[0]) + '''\
+                GB, ''' + str(root_space[1]) + ''' GB free
+                    <div id="diskBar">
+                        <div id="root_diskFill" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detailItem">Disk:/mnt/usb ''' +\
+                str(usb_space[2]) + ''' GB (''' + str(usb_space[3])\
+                + '''%) used of ''' + str(usb_space[0]) + '''\
+                GB, ''' + str(usb_space[1]) + ''' GB free
+                    <div id="diskBar">
+                        <div id="usb_diskFill" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detailItem">Google Ping: ''' + ping + ''' \
+                ms -- Avg: ''' + avg_ping + ''' ms</div>
+                <div class="detailItem">Banned SSH IPs today: ''' +\
+                str(banned_ips) + '''</div>
+                <div class="detailItem">Last Updated: ''' + updated + '''</div>
+            </div>
+        </div>
+    </body>
 </html>'''
 #<div class="detailItem">DNS Queries Today: ''' + dns + '''</div>
     return
@@ -143,6 +163,26 @@ def read_ping():
     #grab the last 5 lines
     total = sum(map(lambda x: float(x.strip()), lines))
     return str(total / len(lines))
+
+def disk_space(drive):
+    """Returns the disk space used and free in a tuple of the supplied drive"""
+    lines = []
+    disk_percent = "0"
+    disk_used = "0"
+    disk_free = "0"
+    disk_total = "0"
+    disk_space_line = check_output(["df", "-h"])
+    lines = disk_space_line.split("\n")
+    for line in lines:
+        #print line
+        if line.startswith(drive):
+            tokens = line.split()
+            disk_used = str(int(tokens[2]))
+            disk_free = str(int(tokens[3]))
+            disk_total = str(int(tokens[1]))
+            disk_percent = str(float(tokens[4].replace("%", "")))
+            break
+    return (disk_total, disk_used, disk_free, disk_percent)
 
 # Just shows the hostname command. Note the .split() function to get rid of any new lines from the shell.
 hostname = check_output(["hostname"]).strip()
@@ -164,30 +204,18 @@ temp_c = str(round(float(check_output(["cat","/sys/class/thermal/thermal_zone0/t
 temp_f = str(float(temp_c) * 1.8 + 32)
 
 # Pings Google DNS 5 times and awks the average ping time
-ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"],shell=True).strip()
+ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).strip()
 save_ping(ping)
 avg_ping = read_ping()
 
 # get the storage space used
-disk_space = check_output(["df", "-m"])
-disk_percent = "0"
-disk_used = "0"
-disk_free = "0"
-disk_total = "0"
-lines = disk_space.split("\n")
-for line in lines:
-    #print line
-    if line.startswith("/dev/root"):
-        tokens = line.split()
-        disk_used = str(int(tokens[2]))
-        disk_free = str(int(tokens[3]))
-        disk_total = str(int(tokens[1]))
-        disk_percent = str(float(tokens[4].replace("%", "")))
-        break
+root_space = disk_space("/dev/root")
+usb_space = disk_space("/mnt/usbstorage")
 
 lines = []
 with open("/var/log/fail2ban.log", 'r') as inFile:
     lines = inFile.readlines()
+
 today = time.strftime("%Y-%m-%d")
 banned_ips = 0
 for line in lines:
