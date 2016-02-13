@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # File Name :
 # Creation Date :
-# Last Modified : Mon 08 Feb 2016 12:02:44 PM MST
+# Last Modified : Sat 13 Feb 2016 11:19:58 AM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -137,10 +137,15 @@ def printHtml():
                     </div>
                 </div>
 
-                <div class="detailItem">Google Ping: ''' + ping + ''' \
-                ms -- Avg: ''' + avg_ping + ''' ms</div>
+                <div class="detailItem">Google Ping: ''' + google_ping + ''' \
+                ms -- Avg: ''' + google_avg_ping + ''' ms</div>
+
+                <div class="detailItem">CenturyLink Ping: ''' + isp_ping + ''' \
+                ms -- Avg: ''' + isp_avg_ping + ''' ms</div>
+
                 <div class="detailItem">Banned SSH IPs today: ''' +\
                 str(banned_ips) + '''</div>
+
                 <div class="detailItem">Last Updated: ''' + updated + '''</div>
             </div>
         </div>
@@ -149,15 +154,15 @@ def printHtml():
 #<div class="detailItem">DNS Queries Today: ''' + dns + '''</div>
     return
 
-def save_ping(ping_value):
+def save_ping(outfile, ping_value):
     """Saves the ping value out to a file"""
-    with open("/var/www/html/ping_history.txt", 'a') as ping_file:
+    with open(outfile, 'a') as ping_file:
         ping_file.writelines(ping_value + "\n")
 
-def read_ping():
+def read_ping(infile):
     """Read in the ping history and return an avg value"""
     lines = []
-    with open("/var/www/html/ping_history.txt", 'r') as ping_file:
+    with open(infile, 'r') as ping_file:
         lines = ping_file.readlines()
 
     #grab the last 5 lines
@@ -205,9 +210,13 @@ temp_c = str(round(float(check_output(["cat","/sys/class/thermal/thermal_zone0/t
 temp_f = str(float(temp_c) * 1.8 + 32)
 
 # Pings Google DNS 5 times and awks the average ping time
-ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).strip()
-save_ping(ping)
-avg_ping = read_ping()
+google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).strip()
+save_ping("/var/www/html/google_ping_history.txt", google_ping)
+google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
+
+isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).strip()
+save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
+isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
 
 # get the storage space used
 root_space = disk_space("/dev/root")
