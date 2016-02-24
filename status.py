@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Sat 13 Feb 2016 11:19:58 AM MST
+# Last Modified : Wed 24 Feb 2016 04:19:24 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -34,7 +34,7 @@ from subprocess import check_output
 # the right places. Notepad++ is great for syntax highlighting it.
 def printHtml():
     """prints out the html file"""
-    print '''
+    print ('''
 <html>
     <head>
         <title>Raspberry Pi Status</title>
@@ -146,18 +146,19 @@ def printHtml():
                 <div class="detailItem">Banned SSH IPs today: ''' +\
                 str(banned_ips) + '''</div>
 
-                <div class="detailItem">Last Updated: ''' + updated + '''</div>
+                <div class="detailItem">Last Updated: ''' + \
+                updated + '''</div>
             </div>
         </div>
     </body>
-</html>'''
+</html>''')
 #<div class="detailItem">DNS Queries Today: ''' + dns + '''</div>
     return
 
 def save_ping(outfile, ping_value):
     """Saves the ping value out to a file"""
     with open(outfile, 'a') as ping_file:
-        ping_file.writelines(ping_value + "\n")
+        ping_file.writelines(str(ping_value))
 
 def read_ping(infile):
     """Read in the ping history and return an avg value"""
@@ -176,8 +177,8 @@ def disk_space(drive):
     disk_used = "0"
     disk_free = "0"
     disk_total = "0"
-    disk_space_line = check_output(["df", "-h"])
-    lines = disk_space_line.split("\n")
+    disk_space_lines = check_output(["df", "-h"])
+    lines = disk_space_lines.decode("utf-8").split("\n")
     for line in lines:
         #print line
         if line.startswith(drive):
@@ -191,7 +192,8 @@ def disk_space(drive):
     return (disk_total, disk_used, disk_free, disk_percent)
 
 # Just shows the hostname command. Note the .split() function to get rid of any new lines from the shell.
-hostname = check_output(["hostname"]).strip()
+hostname = check_output(["hostname"]).decode().strip()
+
 # The calculations here are just lazy and round to the nearest integer.
 ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
 ram_used = str((psutil.virtual_memory().total - psutil.virtual_memory().available) / 1024 / 1024)
@@ -199,7 +201,8 @@ ram_free = str(psutil.virtual_memory().available / 1024 / 1024)
 ram_percent = str(psutil.virtual_memory().percent)
 
 # Shows the uptime from the shell with the pretty option
-uptime = check_output(["uptime", "-p"]).strip()
+uptime = check_output(["uptime", "-p"]).decode().strip()
+
 #dns = check_output(["cat /var/log/dnsmasq.log | grep \"$(date \"+%b %e\")\" | grep \"query\" | wc -l"],shell=True).strip() # This isn't needed if you are not running DNSmasq
 
 # The last time the script was run
@@ -210,11 +213,13 @@ temp_c = str(round(float(check_output(["cat","/sys/class/thermal/thermal_zone0/t
 temp_f = str(float(temp_c) * 1.8 + 32)
 
 # Pings Google DNS 5 times and awks the average ping time
-google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).strip()
+google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print\
+    $5}'"], shell=True).decode()
 save_ping("/var/www/html/google_ping_history.txt", google_ping)
 google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
 
-isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).strip()
+isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print\
+    $5}'"], shell=True).decode()
 save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
 isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
 
