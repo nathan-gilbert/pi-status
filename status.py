@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Wed 24 Feb 2016 04:19:24 PM MST
+# Last Modified : Sun 27 Mar 2016 03:42:44 PM MDT
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -25,16 +25,17 @@ Simple Raspberry Pi Web Status Page
 # can be added by adding the output of a shell command to a variable
 # and enclosing it within a DIV of class "detailItem" in the template.
 
-import psutil # Only used pretty much for getting the RAM values
 import time
+import psutil   # Only used pretty much for getting the RAM values
 from subprocess import check_output
+
 
 # This has the main HTML template that is used every time the script is run.
 # If you have issue after modifying it, make sure you have your quotes in
 # the right places. Notepad++ is great for syntax highlighting it.
 def printHtml():
     """prints out the html file"""
-    print ('''
+    print('''
 <html>
     <head>
         <title>Raspberry Pi Status</title>
