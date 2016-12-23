@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Thu 22 Dec 2016 05:19:02 PM MST
+# Last Modified : Thu 22 Dec 2016 05:26:31 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -26,7 +26,7 @@ Simple Raspberry Pi Web Status Page
 # and enclosing it within a DIV of class "detailItem" in the template.
 
 import time
-import psutil   # Only used pretty much for getting the RAM values
+import psutil   # Only used for getting the RAM values
 from subprocess import check_output
 
 
@@ -220,8 +220,7 @@ save_ping("/var/www/html/google_ping_history.txt", google_ping)
 google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
 
 # Pings century link
-isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print\
-    $5}'"], shell=True).decode()
+isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
 save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
 isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
 
