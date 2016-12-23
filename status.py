@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Thu 22 Dec 2016 05:05:17 PM MST
+# Last Modified : Thu 22 Dec 2016 05:16:54 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -166,7 +166,7 @@ def read_ping(infile):
     lines = []
     with open(infile, 'r') as ping_file:
         lines = [x.strip() for x in ping_file.readlines()]
-        lines = filter(lambda x: x != '', lines)
+        lines = list(filter(lambda x : x != '', lines))
 
     total = sum(map(lambda x: float(x.strip()), lines))
     return str(total / len(lines))
