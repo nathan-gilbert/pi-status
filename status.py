@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Thu 22 Dec 2016 05:26:31 PM MST
+# Last Modified : Thu 22 Dec 2016 05:30:37 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -192,51 +192,51 @@ def disk_space(drive):
             break
     return (disk_total, disk_used, disk_free, disk_percent)
 
-# Just shows the hostname command. Note the .split() function to get rid of any new lines from the shell.
-hostname = check_output(["hostname"]).decode().strip()
+if __name__ == "__main__":
+    # Just shows the hostname command. Note the .split() function to get rid of any new lines from the shell.
+    hostname = check_output(["hostname"]).decode().strip()
 
-# The calculations here are just lazy and round to the nearest integer.
-ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
-ram_used = str((psutil.virtual_memory().total - psutil.virtual_memory().available) / 1024 / 1024)
-ram_free = str(psutil.virtual_memory().available / 1024 / 1024)
-ram_percent = str(psutil.virtual_memory().percent)
+    # The calculations here are just lazy and round to the nearest integer.
+    ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
+    ram_used = str((psutil.virtual_memory().total - psutil.virtual_memory().available) / 1024 / 1024)
+    ram_free = str(psutil.virtual_memory().available / 1024 / 1024)
+    ram_percent = str(psutil.virtual_memory().percent)
 
-# Shows the uptime from the shell with the pretty option
-uptime = check_output(["uptime", "-p"]).decode().strip()
+    # Shows the uptime from the shell with the pretty option
+    uptime = check_output(["uptime", "-p"]).decode().strip()
 
-#dns = check_output(["cat /var/log/dnsmasq.log | grep \"$(date \"+%b %e\")\" | grep \"query\" | wc -l"],shell=True).strip() # This isn't needed if you are not running DNSmasq
+    #dns = check_output(["cat /var/log/dnsmasq.log | grep \"$(date \"+%b %e\")\" | grep \"query\" | wc -l"],shell=True).strip() # This isn't needed if you are not running DNSmasq
 
-# The last time the script was run
-updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
+    # The last time the script was run
+    updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
 
-# Reads the CPU temp in milligrade
-temp_c = str(round(float(check_output(["cat","/sys/class/thermal/thermal_zone0/temp"])) / 1000,1))
-temp_f = str(float(temp_c) * 1.8 + 32)
+    # Reads the CPU temp in milligrade
+    temp_c = str(round(float(check_output(["cat","/sys/class/thermal/thermal_zone0/temp"])) / 1000,1))
+    temp_f = str(float(temp_c) * 1.8 + 32)
 
-# Pings Google DNS 5 times and awks the average ping time
-google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print\
-    $5}'"], shell=True).decode()
-save_ping("/var/www/html/google_ping_history.txt", google_ping)
-google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
+    # Pings Google DNS 5 times and awks the average ping time
+    google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
+    save_ping("/var/www/html/google_ping_history.txt", google_ping)
+    google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
 
-# Pings century link
-isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
-save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
-isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
+    # Pings century link
+    isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
+    save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
+    isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
 
-# get the storage space used
-root_space = disk_space("/dev/root")
-usb_space = disk_space("/dev/sda1")
+    # get the storage space used
+    root_space = disk_space("/dev/root")
+    usb_space = disk_space("/dev/sda1")
 
-lines = []
-with open("/var/log/fail2ban.log", 'r') as inFile:
-    lines = inFile.readlines()
+    lines = []
+    with open("/var/log/fail2ban.log", 'r') as inFile:
+        lines = inFile.readlines()
 
-today = time.strftime("%Y-%m-%d")
-banned_ips = 0
-for line in lines:
-    if line.startswith(today):
-        if line.find("Ban") > -1:
-            banned_ips += 1
+    today = time.strftime("%Y-%m-%d")
+    banned_ips = 0
+    for line in lines:
+        if line.startswith(today):
+            if line.find("Ban") > -1:
+                banned_ips += 1
 
-printHtml() # Calls the function and puts everything together
+    printHtml() # Calls the function and puts everything together
