@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Sun 27 Mar 2016 03:42:44 PM MDT
+# Last Modified : Thu 22 Dec 2016 05:05:17 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -165,9 +165,9 @@ def read_ping(infile):
     """Read in the ping history and return an avg value"""
     lines = []
     with open(infile, 'r') as ping_file:
-        lines = ping_file.readlines()
+        lines = [x.strip() for x in ping_file.readlines()]
+        lines = filter(lambda x: x != '', lines)
 
-    #grab the last 5 lines
     total = sum(map(lambda x: float(x.strip()), lines))
     return str(total / len(lines))
 
