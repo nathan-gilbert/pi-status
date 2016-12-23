@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # File Name :
 # Creation Date :
-# Last Modified : Thu 22 Dec 2016 05:16:54 PM MST
+# Last Modified : Thu 22 Dec 2016 05:19:02 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
 '''
@@ -219,6 +219,7 @@ google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print\
 save_ping("/var/www/html/google_ping_history.txt", google_ping)
 google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
 
+# Pings century link
 isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print\
     $5}'"], shell=True).decode()
 save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
