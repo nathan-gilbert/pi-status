@@ -1,9 +1,7 @@
 #!/usr/bin/python3
-# File Name :
-# Creation Date :
-# Last Modified : Thu 22 Dec 2016 05:30:37 PM MST
 # Created By : originally created by /u/TheLadDothCallMe
 #              major mods by Nathan Gilbert
+
 '''
 Simple Raspberry Pi Web Status Page
 '''
@@ -107,20 +105,20 @@ def printHtml():
             <div id="details">
                 <div class="detailItem">Hostname: ''' + hostname + '''</div>
                 <div class="detailItem">Uptime: ''' + uptime + '''</div>
-                <div class="detailItem">CPU Temp: ''' + temp_c\
-                + ''' &deg;C (''' + temp_f + ''' &deg;F)</div>
-                <div class="detailItem">RAM: ''' + ram_used +\
-                ''' MB used of ''' + ram_total + ''' MB, ''' + ram_free\
-                + ''' MB free
+                <div class="detailItem">CPU Temp: ''' + temp_c
+          + ''' &deg;C (''' + temp_f + ''' &deg;F)</div>
+                <div class="detailItem">RAM: ''' + ram_used +
+          ''' MB used of ''' + ram_total + ''' MB, ''' + ram_free
+          + ''' MB free
                     <div id="ramBar">
                         <div id="ramFill" />
                         </div>
                     </div>
                 </div>
 
-                <div class="detailItem">Disk:/dev/root ''' +\
-                root_space[1] + '''  (''' + root_space[3]\
-                + '''%) used of ''' + root_space[0] + '''\
+                <div class="detailItem">Disk:/dev/root ''' +
+          root_space[1] + '''  (''' + root_space[3]
+          + '''%) used of ''' + root_space[0] + '''\
                 , ''' + root_space[2] + '''  free
                     <div id="diskBar">
                         <div id="root_diskFill" />
@@ -128,9 +126,9 @@ def printHtml():
                     </div>
                 </div>
 
-                <div class="detailItem">Disk:/mnt/usb ''' +\
-                usb_space[1] + ''' (''' + usb_space[3]\
-                + '''%) used of ''' + usb_space[0] + '''\
+                <div class="detailItem">Disk:/mnt/usb ''' +
+          usb_space[1] + ''' (''' + usb_space[3]
+          + '''%) used of ''' + usb_space[0] + '''\
                 , ''' + usb_space[2] + ''' free
                     <div id="diskBar">
                         <div id="usb_diskFill" />
@@ -144,32 +142,35 @@ def printHtml():
                 <div class="detailItem">CenturyLink Ping: ''' + isp_ping + ''' \
                 ms -- Avg: ''' + isp_avg_ping + ''' ms</div>
 
-                <div class="detailItem">Banned SSH IPs today: ''' +\
-                str(banned_ips) + '''</div>
+                <div class="detailItem">Banned SSH IPs today: ''' +
+          str(banned_ips) + '''</div>
 
-                <div class="detailItem">Last Updated: ''' + \
-                updated + '''</div>
+                <div class="detailItem">Last Updated: ''' +
+          updated + '''</div>
             </div>
         </div>
     </body>
 </html>''')
-#<div class="detailItem">DNS Queries Today: ''' + dns + '''</div>
+# <div class="detailItem">DNS Queries Today: ''' + dns + '''</div>
     return
+
 
 def save_ping(outfile, ping_value):
     """Saves the ping value out to a file"""
     with open(outfile, 'a') as ping_file:
         ping_file.writelines(str(ping_value))
 
+
 def read_ping(infile):
     """Read in the ping history and return an avg value"""
     lines = []
     with open(infile, 'r') as ping_file:
         lines = [x.strip() for x in ping_file.readlines()]
-        lines = list(filter(lambda x : x != '', lines))
+        lines = list(filter(lambda x: x != '', lines))
 
     total = sum(map(lambda x: float(x.strip()), lines))
     return str(total / len(lines))
+
 
 def disk_space(drive):
     """Returns the disk space used and free in a tuple of the supplied drive"""
@@ -181,7 +182,7 @@ def disk_space(drive):
     disk_space_lines = check_output(["df", "-h"])
     lines = disk_space_lines.decode("utf-8").split("\n")
     for line in lines:
-        #print line
+        # print line
         if line.startswith(drive):
             #tokens = map(lambda x: x.replace("G", "").replace("M", ""), line.split())
             tokens = line.split()
@@ -192,35 +193,40 @@ def disk_space(drive):
             break
     return (disk_total, disk_used, disk_free, disk_percent)
 
+
 if __name__ == "__main__":
     # Just shows the hostname command. Note the .split() function to get rid of any new lines from the shell.
     hostname = check_output(["hostname"]).decode().strip()
 
     # The calculations here are just lazy and round to the nearest integer.
     ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
-    ram_used = str((psutil.virtual_memory().total - psutil.virtual_memory().available) / 1024 / 1024)
+    ram_used = str((psutil.virtual_memory().total -
+                    psutil.virtual_memory().available) / 1024 / 1024)
     ram_free = str(psutil.virtual_memory().available / 1024 / 1024)
     ram_percent = str(psutil.virtual_memory().percent)
 
     # Shows the uptime from the shell with the pretty option
     uptime = check_output(["uptime", "-p"]).decode().strip()
 
-    #dns = check_output(["cat /var/log/dnsmasq.log | grep \"$(date \"+%b %e\")\" | grep \"query\" | wc -l"],shell=True).strip() # This isn't needed if you are not running DNSmasq
+    # dns = check_output(["cat /var/log/dnsmasq.log | grep \"$(date \"+%b %e\")\" | grep \"query\" | wc -l"],shell=True).strip() # This isn't needed if you are not running DNSmasq
 
     # The last time the script was run
     updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
 
     # Reads the CPU temp in milligrade
-    temp_c = str(round(float(check_output(["cat","/sys/class/thermal/thermal_zone0/temp"])) / 1000,1))
+    temp_c = str(round(float(check_output(
+        ["cat", "/sys/class/thermal/thermal_zone0/temp"])) / 1000, 1))
     temp_f = str(float(temp_c) * 1.8 + 32)
 
     # Pings Google DNS 5 times and awks the average ping time
-    google_ping = check_output(["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
+    google_ping = check_output(
+        ["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
     save_ping("/var/www/html/google_ping_history.txt", google_ping)
     google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
 
     # Pings century link
-    isp_ping = check_output(["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
+    isp_ping = check_output(
+        ["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
     save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
     isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
 
@@ -239,4 +245,4 @@ if __name__ == "__main__":
             if line.find("Ban") > -1:
                 banned_ips += 1
 
-    printHtml() # Calls the function and puts everything together
+    printHtml()  # Calls the function and puts everything together
