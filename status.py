@@ -24,8 +24,9 @@ Simple Raspberry Pi Web Status Page
 # and enclosing it within a DIV of class "detailItem" in the template.
 
 import time
-import psutil   # Only used for getting the RAM values
+ # Only used for getting the RAM values
 from subprocess import check_output
+import psutil
 
 
 # This has the main HTML template that is used every time the script is run.
@@ -56,7 +57,7 @@ def printHtml():
                 padding:10px;
                 }
                 #logo {
-                background-image: url("rpi.png");
+                background-image: url("raspberry-pi-logo.png");
                 background-size: auto 150px;
                 background-repeat: no-repeat;
                 height: 150px;
@@ -181,11 +182,11 @@ def disk_space(drive):
     disk_total = "0"
     disk_space_lines = check_output(["df", "-h"])
     lines = disk_space_lines.decode("utf-8").split("\n")
-    for line in lines:
+    for l in lines:
         # print line
-        if line.startswith(drive):
+        if l.startswith(drive):
             #tokens = map(lambda x: x.replace("G", "").replace("M", ""), line.split())
-            tokens = line.split()
+            tokens = l.split()
             disk_used = str(tokens[2])
             disk_free = str(tokens[3])
             disk_total = str(tokens[1])
@@ -195,7 +196,8 @@ def disk_space(drive):
 
 
 if __name__ == "__main__":
-    # Just shows the hostname command. Note the .split() function to get rid of any new lines from the shell.
+    # Just shows the hostname command. Note the .split() function to get rid
+    # of any new lines from the shell.
     hostname = check_output(["hostname"]).decode().strip()
 
     # The calculations here are just lazy and round to the nearest integer.
@@ -207,8 +209,6 @@ if __name__ == "__main__":
 
     # Shows the uptime from the shell with the pretty option
     uptime = check_output(["uptime", "-p"]).decode().strip()
-
-    # dns = check_output(["cat /var/log/dnsmasq.log | grep \"$(date \"+%b %e\")\" | grep \"query\" | wc -l"],shell=True).strip() # This isn't needed if you are not running DNSmasq
 
     # The last time the script was run
     updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
@@ -234,13 +234,13 @@ if __name__ == "__main__":
     root_space = disk_space("/dev/root")
     usb_space = disk_space("/dev/sda1")
 
-    lines = []
+    fail2ban_lines = []
     with open("/var/log/fail2ban.log", 'r') as inFile:
-        lines = inFile.readlines()
+        fail2ban_lines = inFile.readlines()
 
     today = time.strftime("%Y-%m-%d")
     banned_ips = 0
-    for line in lines:
+    for line in fail2ban_lines:
         if line.startswith(today):
             if line.find("Ban") > -1:
                 banned_ips += 1
