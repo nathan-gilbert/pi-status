@@ -1,159 +1,25 @@
 #!/usr/bin/python3
-# Created By : originally created by /u/TheLadDothCallMe
-#              major mods by Nathan Gilbert
-
 '''
 Simple Raspberry Pi Web Status Page
-'''
-# DISCLAIMER: I won't be held accountable for what you do with
-# this script. Use it however you choose, and let me know
-# if you create something cool with it!
-#
-# This script collects various infos about the Pi
-# and then inserts them into an HTML template before
-# printing it to the screen.
-# It is meant to be used by calling the script from the
-# command line and outputting the result to an file
-# on a web server.
-#
-# Example usage: "python status.py > /var/wwww/html/status.html"
-#
-# As it is HTML, the whole look and feel can be modified in the
-# template below if you know a little CSS. Additional information
-# can be added by adding the output of a shell command to a variable
-# and enclosing it within a DIV of class "detailItem" in the template.
 
+Example usage: "python status.py > /var/wwww/html/status.html"
+
+Originally script created by /u/TheLadDothCallMe
+'''
 import time
- # Only used for getting the RAM values
 from subprocess import check_output
+from string import Template
+# Only used for getting the RAM values
 import psutil
 
 
-# This has the main HTML template that is used every time the script is run.
-# If you have issue after modifying it, make sure you have your quotes in
-# the right places. Notepad++ is great for syntax highlighting it.
-def printHtml():
-    """prints out the html file"""
-    print('''
-<html>
-    <head>
-        <title>Raspberry Pi Status</title>
-        <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-        <style>
-                body {
-                background-color: #1C1C1C;
-                font-family: 'Oswald', sans-serif;
-                }
-                #container {
-                width: 100%;
-                max-width: 600px;
-                margin: 20px auto;
-                padding-top: 10px;
-                background-color: #585858;
-                }
-                #details {
-                display:block;
-                padding:10px;
-                }
-                #logo {
-                background-image: url("raspberry-pi-logo.png");
-                background-size: auto 150px;
-                background-repeat: no-repeat;
-                height: 150px;
-                width: 125px;
-                margin: 0px auto;
-                }
-                .detailItem {
-                padding: 5px;
-                margin: 10px;
-                background-color: #A4A4A4;
-                vertical-align:middle;
-                }
-                #ramBar {
-                width:100%;
-                height: 20px;
-                background-color:#75a928;
-                }
-                #diskBar {
-                width:100%;
-                height: 20px;
-                background-color:#75a928;
-                }
-                #ramFill {
-                float:left;
-                width: ''' + ram_percent + '''%;
-                height:100%;
-                background-color:#bc1142;
-                }
-                #root_diskFill {
-                    float:left;
-                    width: ''' + root_space[3] + '''%;
-                    height:100%;
-                    background-color:#bc1142;
-                }
-                #usb_diskFill {
-                    float:left;
-                    width: ''' + usb_space[3] + '''%;
-                    height:100%;
-                    background-color:#bc1142;
-                }
-        </style>
-    </head>
-    <body>
-        <div id="container">
-            <div id="logo"></div>
-            <div id="details">
-                <div class="detailItem">Hostname: ''' + hostname + '''</div>
-                <div class="detailItem">Uptime: ''' + uptime + '''</div>
-                <div class="detailItem">CPU Temp: ''' + temp_c
-          + ''' &deg;C (''' + temp_f + ''' &deg;F)</div>
-                <div class="detailItem">RAM: ''' + ram_used +
-          ''' MB used of ''' + ram_total + ''' MB, ''' + ram_free
-          + ''' MB free
-                    <div id="ramBar">
-                        <div id="ramFill" />
-                        </div>
-                    </div>
-                </div>
+def read_template(template_path):
+    with open(template_path) as template:
+        return template.read()
 
-                <div class="detailItem">Disk:/dev/root ''' +
-          root_space[1] + '''  (''' + root_space[3]
-          + '''%) used of ''' + root_space[0] + '''\
-                , ''' + root_space[2] + '''  free
-                    <div id="diskBar">
-                        <div id="root_diskFill" />
-                        </div>
-                    </div>
-                </div>
 
-                <div class="detailItem">Disk:/mnt/usb ''' +
-          usb_space[1] + ''' (''' + usb_space[3]
-          + '''%) used of ''' + usb_space[0] + '''\
-                , ''' + usb_space[2] + ''' free
-                    <div id="diskBar">
-                        <div id="usb_diskFill" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detailItem">Google Ping: ''' + google_ping + ''' \
-                ms -- Avg: ''' + google_avg_ping + ''' ms</div>
-
-                <div class="detailItem">CenturyLink Ping: ''' + isp_ping + ''' \
-                ms -- Avg: ''' + isp_avg_ping + ''' ms</div>
-
-                <div class="detailItem">Banned SSH IPs today: ''' +
-          str(banned_ips) + '''</div>
-
-                <div class="detailItem">Last Updated: ''' +
-          updated + '''</div>
-            </div>
-        </div>
-    </body>
-</html>''')
-# <div class="detailItem">DNS Queries Today: ''' + dns + '''</div>
-    return
+def render(template_path, **kwargs):
+    return Template(read_template(template_path)).substitute(**kwargs)
 
 
 def save_ping(outfile, ping_value):
@@ -245,4 +111,25 @@ if __name__ == "__main__":
             if line.find("Ban") > -1:
                 banned_ips += 1
 
-    printHtml()  # Calls the function and puts everything together
+    print(render(template_path="index.template.html",
+                 hostname=hostname,
+                 ram_percent=ram_percent,
+                 uptime=uptime,
+                 temp_c=temp_c,
+                 temp_f=temp_f,
+                 ram_used=ram_used,
+                 ram_total=ram_total,
+                 root_space_0=root_space[0],
+                 root_space_1=root_space[1],
+                 root_space_2=root_space[2],
+                 root_space_3=root_space[3],
+                 usb_space_0=usb_space[0],
+                 usb_space_1=usb_space[1],
+                 usb_space_2=usb_space[2],
+                 usb_space_3=usb_space[3],
+                 google_avg_ping=google_avg_ping,
+                 google_ping=google_ping,
+                 isp_ping=isp_ping,
+                 isp_avg_ping=isp_avg_ping,
+                 banned_ips=banned_ips,
+                 last_updated=updated))
