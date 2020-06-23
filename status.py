@@ -91,8 +91,9 @@ if __name__ == "__main__":
     google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
 
     # Pings century link
+    xfinity_dns_utah = "68.87.85.102"
     isp_ping = check_output(
-        ["ping -c 5 205.171.3.25 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
+        ["ping -c 5 "+xfinity_dns_utah+" | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
     save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
     isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
 
