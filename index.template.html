@@ -57,6 +57,13 @@
         background-color: #75a928;
       }
 
+      #cpuFil {
+        float: left;
+        width: $cpu_used;
+        height: 100%;
+        background-color: #bc1142;
+      }
+
       #ramFill {
         float: left;
         width: $ram_percent;
@@ -99,7 +106,7 @@
         <div class="detailItem">
           RAM: $ram_used MB used of $ram_total MB, $ram_free MB free
           <div id="ramBar">
-            <div id="ramFill"></div>
+            <div id="cpuFill"></div>
           </div>
         </div>
 
