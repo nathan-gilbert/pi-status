@@ -66,6 +66,8 @@ if __name__ == "__main__":
     # of any new lines from the shell.
     hostname = check_output(["hostname"]).decode().strip()
 
+    cpu_used = psutil.cpu_percent()
+
     # The calculations here are just lazy and round to the nearest integer.
     ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
     ram_used = str((psutil.virtual_memory().total -
@@ -115,6 +117,7 @@ if __name__ == "__main__":
     print(render(template_path="index.template.html",
                  hostname=hostname,
                  uptime=uptime,
+                 cpu_used=cpu_used,
                  temp_c=temp_c,
                  temp_f=temp_f,
                  ram_used=ram_used,

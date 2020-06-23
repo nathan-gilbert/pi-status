@@ -17,7 +17,8 @@ Text only weather forecast for home:
 
 ## Todo
 
-- Migrate CSS into it's own file
-- Migrate html into it's own file
 - Save historical in a database instead of a file
-- modularize the statistics that are gathered
+- Modularize the statistics that are gathered
+- Use React to display better stats, maybe even real time
+- Add weather forecast
+- Migrate CSS into it's own file
