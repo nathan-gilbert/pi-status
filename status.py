@@ -103,16 +103,16 @@ if __name__ == "__main__":
     root_space = disk_space("/dev/root")
     usb_space = disk_space("/dev/sda1")
 
-    fail2ban_lines = []
-    with open("/var/log/fail2ban.log", 'r') as inFile:
-        fail2ban_lines = inFile.readlines()
+    #fail2ban_lines = []
+    # with open("/var/log/fail2ban.log", 'r') as inFile:
+    #    fail2ban_lines = inFile.readlines()
 
-    today = time.strftime("%Y-%m-%d")
+    #today = time.strftime("%Y-%m-%d")
     banned_ips = 0
-    for line in fail2ban_lines:
-        if line.startswith(today):
-            if line.find("Ban") > -1:
-                banned_ips += 1
+    # for line in fail2ban_lines:
+    #    if line.startswith(today):
+    #        if line.find("Ban") > -1:
+    #            banned_ips += 1
 
     print(render(template_path="index.template.html",
                  hostname=hostname,
