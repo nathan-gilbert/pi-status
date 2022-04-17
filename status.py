@@ -18,7 +18,7 @@ from enum import Enum
 
 class Distro(Enum):
     UNKNOWN = 0
-    RASPIAN = 1
+    RASPBIAN = 1
     OPENSUSE = 2
     OPENBSD = 3
     NETBSD = 4
@@ -56,10 +56,9 @@ def determine_distro() -> Distro:
         distro_string = check_output(["cat", "/etc/issue"]).decode().strip()
     else:
         distro_string = check_output(["uname", "-a"]).decode().strip()
-    print(distro_string)
 
-    if distro_string.find("Raspian") > -1:
-        return Distro.RASPIAN
+    if distro_string.find("Raspbian") > -1:
+        return Distro.RASPBIAN
     elif distro_string.find("openSUSE") > -1:
         return Distro.OPENSUSE
     elif distro_string.find('OpenBSD') > -1:
@@ -69,7 +68,7 @@ def determine_distro() -> Distro:
 
 
 def get_image_file(distro: Distro) -> str:
-    if distro == Distro.RASPIAN:
+    if distro == Distro.RASPBIAN:
         return "raspberry-pi-logo.png"
     elif distro == Distro.OPENSUSE:
         return "opensuse-logo.png"
@@ -79,7 +78,7 @@ def get_image_file(distro: Distro) -> str:
 
 
 def get_disk_name(distro: Distro) -> str:
-    if distro == Distro.RASPIAN:
+    if distro == Distro.RASPBIAN:
         return "/dev/root"
     elif distro == Distro.OPENSUSE:
         return "/"
@@ -89,7 +88,7 @@ def get_disk_name(distro: Distro) -> str:
 
 
 def get_usb_name(distro: Distro) -> str:
-    if distro == Distro.RASPIAN:
+    if distro == Distro.RASPBIAN:
         return "/dev/sda1"
     elif distro == Distro.OPENSUSE:
         return "/"
@@ -99,13 +98,13 @@ def get_usb_name(distro: Distro) -> str:
 
 
 def get_output_dir(distro: Distro) -> str:
-    if distro == Distro.RASPIAN:
-        return "/var/www/htdocs"
+    if distro == Distro.RASPBIAN:
+        return "/var/www/html"
     elif distro == Distro.OPENSUSE:
         return "/srv/www/htdocs"
     elif distro == Distro.OPENBSD:
         return ""
-    return "/var/www/htdocs"
+    return "/var/www/html"
 
 
 def disk_space(drive):
