@@ -106,6 +106,15 @@ def get_output_dir(distro: Distro) -> str:
         return ""
     return "/var/www/html"
 
+def get_logo_width(distro: Distro) -> str:
+    if distro == Distro.RASPBIAN:
+        return "200"
+    elif distro == Distro.OPENSUSE:
+        return "200"
+    elif distro == Distro.OPENBSD:
+        return "350"
+    return "200"
+
 
 def disk_space(drive):
     """Returns the disk space used and free in a tuple of the supplied drive"""
@@ -173,8 +182,11 @@ if __name__ == "__main__":
     root_space = disk_space(disk_name)
     usb_space = disk_space(usb_name)
 
+    image_width=get_image_width(distro)
+
     print(render(template_path="index.template.html",
                  image_file=image_file,
+                 image_wdith=image_width,
                  hostname=hostname,
                  uptime=uptime,
                  cpu_used=cpu_used,
