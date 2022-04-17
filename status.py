@@ -7,10 +7,20 @@ Example usage: "python status.py > /var/wwww/html/status.html"
 Originally script created by /u/TheLadDothCallMe
 '''
 import time
+import os
 from subprocess import check_output
 from string import Template
 # Only used for getting the RAM values
 import psutil
+from enum import Enum
+
+
+class Distro(Enum):
+    UNKNOWN = 0
+    RASPIAN = 1
+    OPENSUSE = 2
+    OPENBSD = 3
+    NETBSD = 4
 
 
 def read_template(template_path):
@@ -39,6 +49,53 @@ def read_ping(infile):
     return str(total / len(lines))
 
 
+def determine_distro() -> Distro:
+    distro_string = ""
+    if os.path.isfile('/etc/issue'):
+        distro_string = check_output(["cat", "/etc/issue"]).decode().strip()
+    else:
+        distro_string = check_output(["uname", "-a"]).decode().strip()
+
+    if distro_string.find("Raspian") > -1:
+        return Distro.RASPIAN
+    elif distro_string.find("openSUSE") > -1:
+        return Distro.OPENSUSE
+    elif distro_string.find('OpenBSD') > -1:
+        return Distro.OPENBSD
+    else:
+        return Distro.UNKNOWN
+
+
+def get_image_file(distro: Distro) -> str:
+    if distro == Distro.RASPIAN:
+        return "raspberry-pi-logo.png"
+    elif distro == Distro.OPENSUSE:
+        return "opensuse-logo.png"
+    elif distro == Distro.OPENBSD:
+        return "openbsd-logo.png"
+    return "raspberry-pi-logo.png"
+
+
+def get_disk_name(distro: Distro) -> str:
+    if distro == Distro.RASPIAN:
+        return "/dev/root"
+    elif distro == Distro.OPENSUSE:
+        return "/"
+    elif distro == Distro.OPENBSD:
+        return ""
+    return "/dev/root"
+
+
+def get_usb_name(distro: Distro) -> str:
+    if distro == Distro.RASPIAN:
+        return "/dev/sda1"
+    elif distro == Distro.OPENSUSE:
+        return "/"
+    elif distro == Distro.OPENBSD:
+        return ""
+    return "/dev/sda1"
+
+
 def disk_space(drive):
     """Returns the disk space used and free in a tuple of the supplied drive"""
     lines = []
@@ -49,9 +106,7 @@ def disk_space(drive):
     disk_space_lines = check_output(["df", "-h"])
     lines = disk_space_lines.decode("utf-8").split("\n")
     for l in lines:
-        # print line
         if l.startswith(drive):
-            #tokens = map(lambda x: x.replace("G", "").replace("M", ""), line.split())
             tokens = l.split()
             disk_used = str(tokens[2])
             disk_free = str(tokens[3])
@@ -67,6 +122,7 @@ if __name__ == "__main__":
     hostname = check_output(["hostname"]).decode().strip()
 
     cpu_used = psutil.cpu_percent()
+    print(cpu_used)
 
     # The calculations here are just lazy and round to the nearest integer.
     ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
@@ -76,7 +132,7 @@ if __name__ == "__main__":
     ram_percent = str(psutil.virtual_memory().percent)
 
     # Shows the uptime from the shell with the pretty option
-    uptime = check_output(["uptime", "-p"]).decode().strip()
+    uptime = check_output(["uptime", ""]).decode().strip()
 
     # The last time the script was run
     updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
@@ -84,37 +140,28 @@ if __name__ == "__main__":
     # Reads the CPU temp in milligrade
     temp_c = str(round(float(check_output(
         ["cat", "/sys/class/thermal/thermal_zone0/temp"])) / 1000, 1))
-    temp_f = str(float(temp_c) * 1.8 + 32)
+    temp_f = float(temp_c) * 1.8 + 32
+    temp_f = "{:.2f}".format(temp_f)
 
     # Pings Google DNS 5 times and awks the average ping time
     google_ping = check_output(
         ["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
-    save_ping("/var/www/html/google_ping_history.txt", google_ping)
-    google_avg_ping = read_ping("/var/www/html/google_ping_history.txt")
+    save_ping("/srv/www/htdocs/google_ping_history.txt", google_ping)
+    google_ping = "{:.2f}".format(float(google_ping))
+    google_avg_ping = read_ping("/srv/www/htdocs/google_ping_history.txt")
+    google_avg_ping = "{:.2f}".format(float(google_avg_ping))
 
-    # Pings century link
-    xfinity_dns_utah = "68.87.85.102"
-    isp_ping = check_output(
-        ["ping -c 5 "+xfinity_dns_utah+" | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
-    save_ping("/var/www/html/isp_ping_history.txt", isp_ping)
-    isp_avg_ping = read_ping("/var/www/html/isp_ping_history.txt")
+    distro = determine_distro()
+    image_file = get_image_file(distro)
+    disk_name = get_disk_name(distro)
+    usb_name = get_usb_name(distro)
 
     # get the storage space used
-    root_space = disk_space("/dev/root")
-    usb_space = disk_space("/dev/sda1")
-
-    #fail2ban_lines = []
-    # with open("/var/log/fail2ban.log", 'r') as inFile:
-    #    fail2ban_lines = inFile.readlines()
-
-    #today = time.strftime("%Y-%m-%d")
-    banned_ips = 0
-    # for line in fail2ban_lines:
-    #    if line.startswith(today):
-    #        if line.find("Ban") > -1:
-    #            banned_ips += 1
+    root_space = disk_space(disk_name)
+    usb_space = disk_space(usb_name)
 
     print(render(template_path="index.template.html",
+                 image_file=image_file,
                  hostname=hostname,
                  uptime=uptime,
                  cpu_used=cpu_used,
@@ -134,7 +181,4 @@ if __name__ == "__main__":
                  usb_space_3=usb_space[3],
                  google_avg_ping=google_avg_ping,
                  google_ping=google_ping,
-                 isp_ping=isp_ping,
-                 isp_avg_ping=isp_avg_ping,
-                 banned_ips=banned_ips,
                  last_updated=updated))
