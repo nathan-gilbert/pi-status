@@ -6,6 +6,7 @@ Example usage: "python status.py > /var/wwww/html/status.html"
 
 Originally script created by /u/TheLadDothCallMe
 '''
+from dis import dis
 import time
 import os
 from subprocess import check_output
@@ -96,6 +97,16 @@ def get_usb_name(distro: Distro) -> str:
     return "/dev/sda1"
 
 
+def get_output_dir(distro: Distro) -> str:
+    if distro == Distro.RASPIAN:
+        return "/var/www/htdocs"
+    elif distro == Distro.OPENSUSE:
+        return "/srv/www/htdocs"
+    elif distro == Distro.OPENBSD:
+        return ""
+    return "/var/www/htdocs/"
+
+
 def disk_space(drive):
     """Returns the disk space used and free in a tuple of the supplied drive"""
     lines = []
@@ -143,15 +154,17 @@ if __name__ == "__main__":
     temp_f = float(temp_c) * 1.8 + 32
     temp_f = "{:.2f}".format(temp_f)
 
+    distro = determine_distro()
+    out_dir = get_output_dir(distro)
+
     # Pings Google DNS 5 times and awks the average ping time
     google_ping = check_output(
         ["ping -c 5 8.8.8.8 | tail -1| awk -F '/' '{print $5}'"], shell=True).decode()
-    save_ping("/srv/www/htdocs/google_ping_history.txt", google_ping)
+    save_ping(f"{out_dir}/google_ping_history.txt", google_ping)
     google_ping = "{:.2f}".format(float(google_ping))
-    google_avg_ping = read_ping("/srv/www/htdocs/google_ping_history.txt")
+    google_avg_ping = read_ping(f"{out_dir}/google_ping_history.txt")
     google_avg_ping = "{:.2f}".format(float(google_avg_ping))
 
-    distro = determine_distro()
     image_file = get_image_file(distro)
     disk_name = get_disk_name(distro)
     usb_name = get_usb_name(distro)
