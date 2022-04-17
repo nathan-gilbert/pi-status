@@ -56,6 +56,7 @@ def determine_distro() -> Distro:
         distro_string = check_output(["cat", "/etc/issue"]).decode().strip()
     else:
         distro_string = check_output(["uname", "-a"]).decode().strip()
+    print(distro_string)
 
     if distro_string.find("Raspian") > -1:
         return Distro.RASPIAN
@@ -104,7 +105,7 @@ def get_output_dir(distro: Distro) -> str:
         return "/srv/www/htdocs"
     elif distro == Distro.OPENBSD:
         return ""
-    return "/var/www/htdocs/"
+    return "/var/www/htdocs"
 
 
 def disk_space(drive):
