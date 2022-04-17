@@ -83,7 +83,7 @@ def get_disk_name(distro: Distro) -> str:
     elif distro == Distro.OPENSUSE:
         return "/"
     elif distro == Distro.OPENBSD:
-        return ""
+        return "/dev/sd1h"
     return "/dev/root"
 
 
@@ -103,7 +103,7 @@ def get_output_dir(distro: Distro) -> str:
     elif distro == Distro.OPENSUSE:
         return "/srv/www/htdocs"
     elif distro == Distro.OPENBSD:
-        return ""
+        return "/var/www/htdocs/pi-status"
     return "/var/www/html"
 
 def get_logo_width(distro: Distro) -> str:
@@ -136,13 +136,30 @@ def disk_space(drive):
     return (disk_total, disk_used, disk_free, disk_percent)
 
 
+def get_cpu_temp(distro) -> str:
+    temp_c = ""
+    if distro == Distro.RASPBIAN:
+        temp_c = str(round(float(check_output(
+            ["cat", "/sys/class/thermal/thermal_zone0/temp"])) / 1000, 1))
+    elif distro == Distro.OPENSUSE:
+        temp_c = str(round(float(check_output(
+            ["cat", "/sys/class/thermal/thermal_zone0/temp"])) / 1000, 1))
+    elif distro == Distro.OPENBSD:
+        temp_c_string = str(check_output(["sysctl -a | grep temperature"], shell=True).decode().strip())
+        temp_c_string = temp_c_string.replace("hw.sensors.acpitz0.temp0=", "")
+        temp_c_string = temp_c_string.replace(" degC (zone temperature)", "")
+        temp_c = temp_c_string
+    else:
+        temp_c = "-1"
+    return temp_c
+
+
 if __name__ == "__main__":
     # Just shows the hostname command. Note the .split() function to get rid
     # of any new lines from the shell.
     hostname = check_output(["hostname"]).decode().strip()
 
     cpu_used = psutil.cpu_percent()
-    print(cpu_used)
 
     # The calculations here are just lazy and round to the nearest integer.
     ram_total = str(psutil.virtual_memory().total / 1024 / 1024)
@@ -157,14 +174,13 @@ if __name__ == "__main__":
     # The last time the script was run
     updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
 
-    # Reads the CPU temp in milligrade
-    temp_c = str(round(float(check_output(
-        ["cat", "/sys/class/thermal/thermal_zone0/temp"])) / 1000, 1))
-    temp_f = float(temp_c) * 1.8 + 32
-    temp_f = "{:.2f}".format(temp_f)
-
     distro = determine_distro()
     out_dir = get_output_dir(distro)
+
+    # Reads the CPU temp in milligrade
+    temp_c = get_cpu_temp(distro)
+    temp_f = float(temp_c) * 1.8 + 32
+    temp_f = "{:.2f}".format(temp_f)
 
     # Pings Google DNS 5 times and awks the average ping time
     google_ping = check_output(
