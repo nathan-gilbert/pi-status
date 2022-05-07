@@ -156,6 +156,9 @@ def get_cpu_temp(distro) -> str:
 
 
 if __name__ == "__main__":
+    # What distro are we using?
+    distro = determine_distro()
+
     # Just shows the hostname command. Note the .split() function to get rid
     # of any new lines from the shell.
     hostname = check_output(["hostname"]).decode().strip()
@@ -169,13 +172,16 @@ if __name__ == "__main__":
     ram_free = str(psutil.virtual_memory().available / 1024 / 1024)
     ram_percent = str(psutil.virtual_memory().percent)
 
+    uptime_opts = "-p"
+    if distro == Distro.OPENBSD:
+        uptime_opts = ""
+
     # Shows the uptime from the shell with the pretty option
-    uptime = check_output(["uptime", ""]).decode().strip()
+    uptime = check_output(["uptime", uptime_opts]).decode().strip()
 
     # The last time the script was run
     updated = time.strftime("%I:%M:%S %p %m/%d/%Y %Z")
 
-    distro = determine_distro()
     out_dir = get_output_dir(distro)
 
     # Reads the CPU temp in milligrade
