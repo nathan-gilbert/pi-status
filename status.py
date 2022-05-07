@@ -106,6 +106,7 @@ def get_output_dir(distro: Distro) -> str:
         return "/var/www/htdocs/pi-status"
     return "/var/www/html"
 
+
 def get_logo_width(distro: Distro) -> str:
     if distro == Distro.RASPBIAN:
         return "200px"
@@ -198,7 +199,7 @@ if __name__ == "__main__":
     root_space = disk_space(disk_name)
     usb_space = disk_space(usb_name)
 
-    logo_width=get_logo_width(distro)
+    logo_width = get_logo_width(distro)
 
     print(render(template_path="index.template.html",
                  image_file=image_file,
